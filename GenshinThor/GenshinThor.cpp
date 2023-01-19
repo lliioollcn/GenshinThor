@@ -4,16 +4,22 @@
 #include <iostream>
 #include <windows.h>
 #include <string>
+#include <direct.h>
 #include "utils.h"
 
-int main()
+
+int main(int argc,char* argv[])
 {
     std::cout << "Hello World!\n" << std::endl;
-    
+    if (argc < 2)
+    {
+        std::cout << "使用方法: GenshinTohr.exe 原神路径(完整的YuanShen.exe路径)\n" << std::endl;
+        return 0;
+    }
     PROCESS_INFORMATION pi;     //process_infomation
 
     
-    std::string gamePath = "D:\\Program Files\\Genshin Impact\\Genshin Impact Game\\YuanShen.exe";
+    std::string gamePath = argv[1];
     //std::string gamePath = "cmd.exe";
     std::cout << "尝试打开原神" << std::endl;
    
@@ -27,7 +33,16 @@ int main()
        DWORD processId = pi.dwProcessId;
        DWORD exploerId = FindProcess(L"YuanShen.exe");
        std::cout << "原神的进程ID号:" << exploerId << std::endl;   //dwprocessid：新建进程ID
-       BOOL ret = injectDll("D:\\VSProjects\\GenshinThor\\GenshinThor\\x64\\Debug\\CheatLibrary.dll", exploerId);
+       char* buffer = NULL;
+       buffer = _getcwd(NULL, 0);
+       std::string now = buffer;
+       free(buffer);
+       std::string path = now + "\\CheatLibrary.dll";
+       //std::string path1 = now + "\\CLibrary.dll";
+       std::cout << "当前dll路径: " << path << std::endl;   
+       //std::cout << "当前dll路径: " << path1 << std::endl;   
+       BOOL ret = injectDll(covert3(path), exploerId);
+        
        if (ret)
        {
            std::cout << "注入成功~" << std::endl;
@@ -36,10 +51,20 @@ int main()
            std::cout << "注入失败." << std::endl;
            system("pause");
        }
+       /*
+       ret = injectDll(covert3(path1), exploerId);
+       if (ret)
+       {
+           std::cout << "注入成功~" << std::endl;
+       }
+       else {
+           std::cout << "注入失败." << std::endl;
+           system("pause");
+       }*/
        
    }
    else {
-       std::cout << "打开失败" << std::endl;
+       std::cout << "打开失败，或许你没有使用管理员身份运行此程序？" << std::endl;
    }
 
    return 0;
